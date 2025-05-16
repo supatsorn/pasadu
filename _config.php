@@ -1,0 +1,15 @@
+<?php
+$_DB="material";
+$_U="cnbmc";
+$_P="cnbmc";
+$_H="127.0.0.1";
+$_DB_LOGIN="material";
+$_TB_LOGIN="user";
+$_TB_LOGIN_USERNAME_F="username";
+$_TB_LOGIN_PASSWORD_F="password";
+$_TB_LOGIN_NAME_F="name";
+$_TB_LOGIN_POSITION_F="position";
+$_TB_LOGIN_ROLE_F="role";
+$_TB_LOGIN_ID_F="id";
+$_TB_LOGIN_DEP_F="department";
+?>

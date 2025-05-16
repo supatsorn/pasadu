@@ -1,0 +1,146 @@
+<?php
+include("_include_check_user_login.php");
+require_once("_text.php");
+$name=$_SESSION['$sid_name'];
+$pos=$_SESSION['$sid_position'];
+?>
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title><?php echo $_HTML_TEXT_TITLE; ?></title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/my.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"><?php echo $_HTML_TEXT_PROJECT_NAME; ?></a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+        <li><a href="#"><?php echo $name;?></a></li>
+        <li><a href="#"><?php echo $pos;?></a></li>
+        <li><a href="logout.php" class="glyphicon glyphicon-log-out">&nbsp;ออกจากระบบ</a></li>
+        </ul>
+        <!--<div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">Help</a></li>
+          </ul>
+          <form class="navbar-form navbar-right">
+            <input type="text" class="form-control" placeholder="Search...">
+          </form>
+        </div>-->
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+      <?php require("_user_menu.php"); ?>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+
+          <h2 class="sub-header">รายการวัสดุคงเหลือ</h2>
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr class="success">
+					<th>หมวดวัสดุ</th>
+					<th>รหัสรายการ</th>
+                  <th>รายการ</th>
+                  <th>คงเหลือ</th>
+                  <th>หน่วยนับ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php
+		  require( "_config.php" );
+		  $user = $_U;
+			$password = $_P;
+			$host = $_H;
+			$db = $_DB;
+			
+			// Create connection
+			$conn = new mysqli( $host, $user, $password, $db );
+			// Check connection
+			if ( $conn->connect_error ) {
+				die( "DB Connection failed: " . $conn->connect_error );
+			}
+			mysqli_set_charset($conn, "utf8");
+
+			$sql = "select c.*,COALESCE(SUM(number), 0) as balance,d.name as category_name
+from material.register as c
+left join
+(SELECT a.id_name,cast(a.number as SIGNED) as number
+FROM material.add_data as a UNION ALL
+SELECT b.id_name,b.app_number*-1
+FROM material.request_approve as b UNION ALL
+select d.id,d.number_low*-1
+from material.register as d
+) as t
+on c.id=t.id_name
+left join material.category as d on c.category=d.id
+where c.allow=1
+group by c.name
+order by c.category,c.code";
+			$result = $conn->query( $sql );
+
+			if ( $result->num_rows > 0 ) {
+				//found				
+				while ( $row = $result->fetch_assoc() ) {
+					echo "<tr>";
+					echo "<td>".$row[ "category_name" ]."</td>";
+					echo "<td>".$row[ "code" ]."</td>";
+					echo "<td>".$row[ "name" ]."</td>";
+					echo "<td>".$row[ "balance" ]."</td>";
+					echo "<td>".$row[ "unit" ]."</td>";
+					echo "</tr>";
+				}	
+			} else {
+				//not found
+			}
+$conn->close();		  
+		  ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+    <script src="js/holder.js"></script>
+  </body>
+</html>
